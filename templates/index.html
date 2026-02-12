@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Popularity Prediction</title>
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('/static/bg1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 50%; /* Ensures equal space on both sides */
+    max-width: 600px; /* Prevents too wide layout on larger screens */
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.6); /* Makes it more transparent */
+    border: 2px solid crimson;
+    box-shadow: 0 0 15px crimson;
+    border-radius: 8px;
+    text-align: center;
+    box-sizing: border-box; /* Ensures padding does not affect width */
+}
+h1 {
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px whitesmoke;
+}
+input, select, textarea {
+    width: calc(100% - 20px); /* Keeps equal space on left and right */
+    padding: 10px;
+    margin: 10px auto; /* Centers input fields inside container */
+    background: black;
+    border: 1px solid crimson;
+    border-radius: 4px;
+    font-size: 14px;
+    color: white;
+    display: block;
+    box-sizing: border-box; /* Ensures padding does not affect width */
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ff000d;
+    color: black;
+    font-weight: bold;
+    border: 2px solid #ff000d;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+    background: black;
+    color: #ff000d;
+    border: 2px solid #ff000d;
+    box-shadow: 0 0 10px #ff000d;
+}
+
+
+    </style>
+    <script>
+        async function sendData(event) {
+            event.preventDefault(); // Prevent form from submitting the traditional way
+            
+            // Get the input values from the form
+            const genre = document.getElementById('genre').value;
+            const director = document.getElementById('director').value;
+            const cast = document.getElementById('cast').value;
+            const plot = document.getElementById('plot').value;
+
+            // Prepare the data to send as JSON
+            const formData = {
+                genre: genre,
+                director: director,
+                cast: cast,
+                plot: plot
+            };
+
+            // Send the POST request with JSON data
+            const response = await fetch('http://127.0.0.1:5500/index', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            // Check if the response is JSON
+            const data = await response.json();
+
+            if (data.predicted_rating && data.predicted_audience) {
+                // Use local storage or URL params to pass the data
+                localStorage.setItem("movieResult", JSON.stringify(data));
+                window.location.href = "/result";  // Redirect to result page
+            } else {
+                alert("Error in prediction.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Popularity Prediction</h1>
+        <form id="movieForm" name="movieForm" action="/index" method="POST" onsubmit="sendData(event)">
+            <label for="genre">Genre:</label>
+            <input type="text" id="genre" name="genre" placeholder="Enter movie genre(s)" required>
+
+            <label for="director">Director:</label>
+            <input type="text" id="director" name="director" placeholder="Enter director's name" required>
+
+            <label for="cast">Cast:</label>
+            <input type="text" id="cast" name="cast" placeholder="Enter main cast names" required>
+
+            <label for="plot">Plot:</label>
+            <textarea id="plot" name="plot" placeholder="Enter a brief plot description" rows="4" required></textarea>
+
+            <button type="submit">Predict Popularity</button>
+        </form>
+    </div>
+</body>
+</html>
